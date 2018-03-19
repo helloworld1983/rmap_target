@@ -43,7 +43,7 @@ entity RMAPTargetIPDecoder is
         transmitFIFOFull         : in  std_logic;
         receiveFIFOReadEnable    : out std_logic;
         receiveFIFODataOut       : in  std_logic_vector (8 downto 0);
-        receiveFIFODataCount     : in  std_logic_vector (5 downto 0);
+        receiveFIFOEmpty         : in  std_logic;
         -- dma 
         rmapAddress              : out std_logic_vector (31 downto 0);
         rmapDataLength           : out std_logic_vector (23 downto 0);
@@ -250,8 +250,8 @@ begin
 
     transmitFIFOWriteEnable <= iTransmitFIFOWriteEnable;
     transmitFIFODataIn      <= iTransmitFIFODataIn;
-    iTransmitFIFOReady      <= '1' when transmitFIFOFull = '0'          else '0';
-    iReceiveFIFOReady       <= '0' when receiveFIFODataCount = "000000" else '1';
+    iTransmitFIFOReady      <= not transmitFIFOFull;
+    iReceiveFIFOReady       <= not receiveFIFOEmpty;
     receiveFIFOReadEnable   <= iReceiveFIFOReadEnable;
 
     busAccessStart            <= iBusAccessStart;

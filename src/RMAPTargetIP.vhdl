@@ -44,7 +44,7 @@ entity RMAPTargetIP is
         transmitFIFOFull         : in  std_logic;
         receiveFIFOReadEnable    : out std_logic;
         receiveFIFODataOut       : in  std_logic_vector (8 downto 0);
-        receiveFIFODataCount     : in  std_logic_vector (5 downto 0);
+        receiveFIFOEmpty         : in  std_logic;
         
         -- Internal BUS 
         busMasterCycleOut       : out std_logic;
@@ -98,7 +98,7 @@ architecture behavioral of RMAPTargetIP is
             transmitFIFOFull         : in  std_logic;
             receiveFIFOReadEnable    : out std_logic;
             receiveFIFODataOut       : in  std_logic_vector (8 downto 0);
-            receiveFIFODataCount     : in  std_logic_vector (5 downto 0);
+            receiveFIFOEmpty         : in  std_logic;
             -- dma
             rmapAddress              : out std_logic_vector (31 downto 0);
             rmapDataLength           : out std_logic_vector (23 downto 0);
@@ -200,7 +200,7 @@ begin
             transmitFIFOFull         => transmitFIFOFull,
             receiveFIFOReadEnable    => receiveFIFOReadEnable,
             receiveFIFODataOut       => receiveFIFODataOut,
-            receiveFIFODataCount     => receiveFIFODataCount,
+            receiveFIFOEmpty         => receiveFIFOEmpty,
             -- dma
             rmapAddress              => rmapAddress,
             rmapDataLength           => rmapDataLength,
