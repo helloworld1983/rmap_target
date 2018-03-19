@@ -1,14 +1,13 @@
+src/RMAPTargetIPCRCRom.sv
+src/RMAPTargetIPFIFO.sv
 src/RMAPTargetIP.vhdl
 src/Xilinx/RMAPTargetIPFIFO8x2kXilinx.vhdl
-src/Xilinx/crcData.coe
 src/Xilinx/RMAPTargetIPCRCRomXilinx.vhdl
-src/Xilinx/crcRomXilinx.xco
-src/Xilinx/FIFO8x2kXilinx.xco
 src/RMAPTargetIPDecoder.vhdl
+src/RMAPAuthenticator.sv
 src/RMAPTargetIPDMAController.vhdl
 src/Altera/FIFO8x2kAltera.vhd
 src/Altera/RMAPTargetIPFIFO8x2kAltera.vhdl
-src/Altera/crcData.hex
 src/Altera/crcRomAltera.vhd
 src/Altera/RMAPTargetIPCRCRomAltera.vhdl
 src/RMAPTargetIPPackage.vhdl
