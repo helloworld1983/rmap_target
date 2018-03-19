@@ -28,7 +28,6 @@ use IEEE.STD_LOGIC_ARITH.all;
 use IEEE.STD_LOGIC_UNSIGNED.all;
 
 library work;
-use work.SpaceWireCODECIPPackage.all;
 use work.RMAPTargetIPPackage.all;
 
 entity RMAPTargetIP is
