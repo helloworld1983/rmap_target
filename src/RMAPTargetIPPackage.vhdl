@@ -32,7 +32,7 @@ package RMAPTargetIPPackage is
 -- ============================================================================
     constant cBusWidth        : integer range 8 to 32 := 8;  -- 8 = 8bit, 16 = 16bit, 32 = 32bit,
     constant cRMAPCRCRevision : std_logic             := '1';  --(0:Rev.e, 1:Rev.f)
-    constant cUseDevice       : integer range 0 to 1  := 1;  -- 0 = Altera,  1 = Xilinx
+    constant cUseDevice       : integer range 0 to 2  := 2;  -- 0 = Altera,  1 = Xilinx, 2 = user modules
 
 -- ============================================================================
 --  Declare State Mchine

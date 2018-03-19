@@ -190,6 +190,24 @@ architecture behavioral of RMAPTargetIPDecoder is
             );
     end component;
 
+    component RMAPTargetIPFIFO is
+        generic (
+            DATA_WIDTH : integer := 8;
+            ADDR_WIDTH : integer := 11
+            );
+        port (
+            clk         : in  std_logic;
+            rst         : in  std_logic;
+            dataIn      : in  std_logic_vector (DATA_WIDTH-1 downto 0);
+            wrEnable    : in  std_logic;
+            full        : out std_logic;
+            dataOut     : out std_logic_vector (DATA_WIDTH-1 downto 0);
+            rdEnable    : in  std_logic;
+            empty       : out std_logic;
+            statusCntr  : out std_logic_vector (ADDR_WIDTH downto 0)
+            );
+    end component;
+
     signal iDMAReadBufferReadReady   : std_logic;
     signal iReadBufferReady          : std_logic;
     signal iReadBufferReadEnable     : std_logic;
@@ -220,6 +238,15 @@ architecture behavioral of RMAPTargetIPDecoder is
     component RMAPTargetIPCRCRomAltera is
         port (
             clock   : in  std_logic;
+            address : in  std_logic_vector (8 downto 0);
+            dataOut : out std_logic_vector (7 downto 0)
+            );
+    end component;
+
+    component RMAPTargetIPCRCRom is
+        port (
+            clk     : in  std_logic;
+            rst     : in  std_logic;
             address : in  std_logic_vector (8 downto 0);
             dataOut : out std_logic_vector (7 downto 0)
             );
@@ -1135,6 +1162,19 @@ begin
     iCommandCRCRomAddress <= cRMAPCRCRevision & iCommandCRCRomAddressBuffer;
 
 ----------------------------------------------------------------------
+-- User CRC
+----------------------------------------------------------------------
+    receiveCRCRomUser : if cUseDevice = 2 generate
+        receiveCRCRom : RMAPTargetIPCRCRom
+            port map (
+                clk     => clock,
+                rst     => reset,
+                address => iCommandCRCRomAddress,
+                dataOut => commandCRCRomOut
+                );
+    end generate;
+
+----------------------------------------------------------------------
 -- Xilinx
 ----------------------------------------------------------------------
     receiveCRCRomXilinx : if cUseDevice = 1 generate
@@ -1253,6 +1293,19 @@ begin
 -- reply data crc table (0-255:RevE, 256-511:RevF)
 --------------------------------------------------------------------------------
     iReplyCRCRomAddress <= cRMAPCRCRevision & iReplyCRCAddressBuffer;
+
+----------------------------------------------------------------------
+-- User CRC
+----------------------------------------------------------------------
+    transmittCRCRomUser : if cUseDevice = 2 generate
+        transmitteCRCRom : RMAPTargetIPCRCRom
+            port map (
+                clk     => clock,
+                rst     => reset,
+                address => iReplyCRCRomAddress,
+                dataOut => replyCRCRomOut
+                );
+    end generate;
 
 ----------------------------------------------------------------------
 -- Xilinx
@@ -1807,6 +1860,46 @@ begin
     iDMAReadBufferWriteData <= dmaReadBufferWriteData;
     iWriteBufferReset       <= iWriteBufferClear or reset;
     iReadBufferReset        <= iReadBufferClear or reset;
+
+    ----------------------------------------------------------------------
+    -- User FIFO
+    ----------------------------------------------------------------------
+    UserFIFO : if cUseDevice = 2 generate
+        readBuffer : RMAPTargetIPFIFO 
+            generic map (
+                DATA_WIDTH => 8,
+                ADDR_WIDTH => 11
+                )
+            port map (
+                clk         => clock,
+                rst         => iReadBufferReset,
+                dataIn      => iDMAReadBufferWriteData,
+                wrEnable    => iDMAReadBufferWriteEnable,
+                full        => readBufferFull,
+                dataOut     => readBufferReadData,
+                rdEnable    => iReadBufferReadEnable,
+                empty       => readBufferEmpty,
+                statusCntr  => readBufferDataCount --debug
+                );
+
+        writeBuffer : RMAPTargetIPFIFO 
+            generic map (
+                DATA_WIDTH => 8,
+                ADDR_WIDTH => 11
+                )
+            port map (
+                clk         => clock,
+                rst         => iWriteBufferReset,
+                dataIn      => iReceiveData,
+                wrEnable    => iWriteBufferWriteEnable,
+                full        => writeBufferFull,
+                dataOut     => dmaWriteBufferReadData,
+                rdEnable    => dmaWriteBufferReadEnable,
+                empty       => dmaWriteBufferEmpty,
+                statusCntr  => writeBufferDataCount  --debug
+                );
+    end generate;
+
     ----------------------------------------------------------------------
     -- Xilinx
     ----------------------------------------------------------------------
@@ -1868,5 +1961,6 @@ begin
                 dataCount   => writeBufferDataCount  --debug
                 );
     end generate;
+
 
 end behavioral;
