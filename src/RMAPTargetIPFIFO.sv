@@ -13,17 +13,20 @@ module RMAPTargetIPFIFO #(
 	input                         rdEnable  ,
 	output logic                  empty     ,
 	// empty space counter
-	output logic [  ADDR_WIDTH:0] statusCntr
+	output logic [ADDR_WIDTH-1:0] statusCntr
 );    
 
 	localparam RAM_DEPTH = (1 << ADDR_WIDTH);
 	
 	logic [ADDR_WIDTH-1:0] wr_pointer   ;
 	logic [ADDR_WIDTH-1:0] rd_pointer   ;
-	logic [  ADDR_WIDTH:0] statusCntrNxt;
+	logic [  ADDR_WIDTH:0] statusCntrReg, statusCntrNxt;
 	
 	logic [DATA_WIDTH-1:0] mem[RAM_DEPTH]; 
 	
+
+	assign statusCntr = statusCntrReg[ADDR_WIDTH-1:0];
+
 	// ----------------------------------------------
 	// RAM
 	// ----------------------------------------------
@@ -36,10 +39,7 @@ module RMAPTargetIPFIFO #(
 	// ----------------------------------------------   
 	// full & empty
 	// ----------------------------------------------   
-	always_ff @(posedge clk or posedge rst)
-		if(rst) empty <= 1;
-		else if(statusCntrNxt[ADDR_WIDTH]) empty <= 1;
-		else                               empty <= 0;
+	assign empty = statusCntrReg[ADDR_WIDTH];
 	
 	always_ff @(posedge clk or posedge rst)
 		if(rst) full <= 0;
@@ -60,14 +60,14 @@ module RMAPTargetIPFIFO #(
 	end
 	
 	always_ff @(posedge clk or posedge rst) begin 
-		if(rst) statusCntr <= (1 << ADDR_WIDTH);
-		else statusCntr <= statusCntrNxt;
+		if(rst) statusCntrReg <= (1 << ADDR_WIDTH);
+		else statusCntrReg <= statusCntrNxt;
 	end
 	
 	always_comb begin 
-		if((rdEnable & !empty) & !(wrEnable & !full)) 		statusCntrNxt = statusCntr + 1; // Read but not write
-		else if(!(rdEnable & !empty) & (wrEnable & !full)) statusCntrNxt = statusCntr - 1; // Write but not read
-		else statusCntrNxt = statusCntr;
+		if((rdEnable & !empty) & !(wrEnable & !full)) 		statusCntrNxt = statusCntrReg + 1; // Read but not write
+		else if(!(rdEnable & !empty) & (wrEnable & !full)) statusCntrNxt = statusCntrReg - 1; // Write but not read
+		else statusCntrNxt = statusCntrReg;
 			 
 	end		 
 endmodule 

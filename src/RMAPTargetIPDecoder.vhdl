@@ -62,7 +62,8 @@ entity RMAPTargetIPDecoder is
         -- RMAP State                                                 
         commandStateOut          : out commandStateMachine;
         replyStateOut            : out replyStateMachine;
-        -- RMAP Transaction information                               
+        -- RMAP Transaction information 
+        rmapExtendedAddressOut   : out std_logic_vector(7 downto 0);                              
         rmapLogicalAddressOut    : out std_logic_vector(7 downto 0);
         rmapKeyOut               : out std_logic_vector(7 downto 0);
         -- RMAP Transaction control
@@ -204,7 +205,7 @@ architecture behavioral of RMAPTargetIPDecoder is
             dataOut     : out std_logic_vector (DATA_WIDTH-1 downto 0);
             rdEnable    : in  std_logic;
             empty       : out std_logic;
-            statusCntr  : out std_logic_vector (ADDR_WIDTH downto 0)
+            statusCntr  : out std_logic_vector (ADDR_WIDTH-1 downto 0)
             );
     end component;
 
@@ -296,30 +297,32 @@ begin
     process (clock, reset)
     begin
         if (reset = '1') then
-            rmapAddress           <= (others => '0');
-            rmapDataLength        <= (others => '0');
-            rmapCommand           <= (others => '0');
-            rmapLogicalAddressOut <= (others => '0');
-            rmapKeyOut            <= (others => '0');
+            rmapExtendedAddressOut <= (others => '0');
+            rmapAddress            <= (others => '0');
+            rmapDataLength         <= (others => '0');
+            rmapCommand            <= (others => '0');
+            rmapLogicalAddressOut  <= (others => '0');
+            rmapKeyOut             <= (others => '0');
             --
-            requestAuthorization  <= '0';
+            requestAuthorization   <= '0';
             --
-            commandStateOut       <= commandStateIdle;
-            replyStateOut         <= replyStateIdle;
-            rmapErrorCode         <= x"00";
+            commandStateOut        <= commandStateIdle;
+            replyStateOut          <= replyStateIdle;
+            rmapErrorCode          <= x"00";
             
         elsif (clock'event and clock = '1') then
-            rmapAddress           <= iRMAPAddress;
-            rmapDataLength        <= iRMAPDataLength;
-            rmapCommand           <= iRMAPCommand;
-            rmapLogicalAddressOut <= iTargetLogicalAddress;
-            rmapKeyOut            <= iRmapKey;
+            rmapExtendedAddressOut <= iExtendedAddress;
+            rmapAddress            <= iRMAPAddress;
+            rmapDataLength         <= iRMAPDataLength;
+            rmapCommand            <= iRMAPCommand;
+            rmapLogicalAddressOut  <= iTargetLogicalAddress;
+            rmapKeyOut             <= iRmapKey;
             --
-            requestAuthorization  <= iRequestAuthorization;
+            requestAuthorization   <= iRequestAuthorization;
             --
-            commandStateOut       <= commandState;
-            replyStateOut         <= replyState;
-            rmapErrorCode         <= iErrorCode;
+            commandStateOut        <= commandState;
+            replyStateOut          <= replyState;
+            rmapErrorCode          <= iErrorCode;
         end if;
     end process;
 
