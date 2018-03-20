@@ -2,7 +2,7 @@ module RMAPTargetTop #(
 	ADDR_MIN        = 0        , // should be dividable by 4
 	ADDR_MAX        = 2048     , // should be dividable by 4
 	MAX_READ_LENGTH = (ADDR_MAX - ADDR_MIN), // max length for incrementing read
-	BUS_WIDTH       = 32		 // should be dividable by 8
+	BUS_WIDTH       = 32         // should be dividable by 8
 ) (
 	input                            clk                ,
 	input                            rst                ,
@@ -13,17 +13,16 @@ module RMAPTargetTop #(
 	output logic                     rxReadEnable       ,
 	input        [              8:0] rxDataOut          ,
 	input                            rxEmpty            ,
-	// internal BUS
-	output logic                     busCycleOut        ,
-	output logic                     busStrobeOut       ,
-	output logic [             31:0] busAddressOut      ,
-	output logic [(BUS_WIDTH/8)-1:0] busByteEnableOut   ,
-	input        [    BUS_WIDTH-1:0] busDataIn          ,
-	output logic [    BUS_WIDTH-1:0] busDataOut         ,
-	output logic                     busWriteEnableOut  ,
-	output logic                     busReadEnableOut   ,
-	input                            busAcknowledgeIn   ,
-	input                            busTimeOutErrorIn  ,
+	// wishbone bus
+	output logic                     cycOut             , 
+	output logic                     stbOut             , 
+	output logic [             31:0] adrOut             , 
+	output logic [(BUS_WIDTH/8)-1:0] selOut             , 
+	input        [    BUS_WIDTH-1:0] datIn              , 
+	output logic [    BUS_WIDTH-1:0] datOut             , 
+	output logic                     weOut              , 
+	input                            ackIn              , 
+	input                            errIn              , 
 	// RMAP error code and status
 	output logic [              7:0] rmapErrorCode      ,
 	output logic                     errorIndication    ,
@@ -63,16 +62,16 @@ module RMAPTargetTop #(
 		.receiveFIFOEmpty       (rxEmpty             ),
 		
 		// Internal BUS
-		.busMasterCycleOut      (busCycleOut         ),
-		.busMasterStrobeOut     (busStrobeOut        ),
-		.busMasterAddressOut    (busAddressOut       ),
-		.busMasterByteEnableOut (busByteEnableOut    ),
-		.busMasterDataIn        (busDataIn           ),
-		.busMasterDataOut       (busDataOut          ),
-		.busMasterWriteEnableOut(busWriteEnableOut   ),
-		.busMasterReadEnableOut (busReadEnableOut    ),
-		.busMasterAcknowledgeIn (busAcknowledgeIn    ),
-		.busMasterTimeOutErrorIn(busTimeOutErrorIn   ),
+		.busMasterCycleOut      (cycOut              ),
+		.busMasterStrobeOut     (stbOut              ),
+		.busMasterAddressOut    (adrOut              ),
+		.busMasterByteEnableOut (selOut              ),
+		.busMasterDataIn        (datIn               ),
+		.busMasterDataOut       (datOut              ),
+		.busMasterWriteEnableOut(weOut               ),
+		.busMasterReadEnableOut (                    ),
+		.busMasterAcknowledgeIn (ackIn               ),
+		.busMasterTimeOutErrorIn(errIn               ),
 		
 		// RMAP Statemachines state
 		.commandStateOut        (                    ),

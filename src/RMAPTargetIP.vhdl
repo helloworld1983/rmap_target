@@ -275,7 +275,7 @@ begin
 
     BusWidth8 : if (gBusWidth = 8) generate
         iBusMasterDataIn       <= x"000000" & busMasterDataIn(7 downto 0);
-       busMasterDataOut       <= busMasterDataOutSignal(7 downto 0);
+        busMasterDataOut       <= busMasterDataOutSignal(7 downto 0);
         busMasterByteEnableOut <= busMasterByteEnableOutSignal(0 downto 0);
     end generate;
 
