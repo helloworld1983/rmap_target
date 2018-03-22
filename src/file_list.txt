@@ -1,13 +1,23 @@
+#
+# This is list of files for the RMAP target project.
+# 
+# The syntax of this file include comments (lines starting with "#")
+# and file paths (all other not empty lines).
+# 
+# This file is used by tcl-script to compile project.
+# The order of the files matters.
+#
+
+# low-level cores
 RMAPTargetIPCRCRom.sv
 RMAPTargetIPFIFO.sv
-RMAPTargetIP.vhdl
-Xilinx/RMAPTargetIPFIFO8x2kXilinx.vhdl
-Xilinx/RMAPTargetIPCRCRomXilinx.vhdl
-RMAPTargetIPDecoder.vhdl
-RMAPAuthenticator.sv
-RMAPTargetIPDMAController.vhdl
-Altera/FIFO8x2kAltera.vhd
-Altera/RMAPTargetIPFIFO8x2kAltera.vhdl
-Altera/crcRomAltera.vhd
-Altera/RMAPTargetIPCRCRomAltera.vhdl
+
+# rmap target core
 RMAPTargetIPPackage.vhdl
+RMAPTargetIPDecoder.vhdl
+RMAPTargetIPDMAController.vhdl
+RMAPTargetIP.vhdl
+
+# new cores
+RMAPAuthenticator.sv
+RMAPTargetTop.sv
