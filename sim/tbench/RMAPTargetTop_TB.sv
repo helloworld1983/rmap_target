@@ -8,6 +8,7 @@ module RMAPTargetTop_TB ();
 	bit clk;
 	bit rst;
 
+	// fifo interface
 	logic       txWriteEnable;
 	logic [8:0] txDataIn     ;
 	logic       txFull       ;
@@ -15,6 +16,7 @@ module RMAPTargetTop_TB ();
 	logic [8:0] rxDataOut    ;
 	logic       rxEmpty      ;
 
+	// wishbone interface
 	logic                     cycOut;
 	logic                     stbOut;
 	logic [             31:0] adrOut;
@@ -25,15 +27,18 @@ module RMAPTargetTop_TB ();
 	logic                     ackIn ;
 	logic                     errIn ;
 
+	// status
 	logic [7:0] rmapErrorCode      ;
 	logic       errorIndication    ;
 	logic       writeDataIndication;
 	logic       readDataIndication ;
 	logic       rmwDataIndication  ;
-	logic [7:0] configKey          ;
-	logic [7:0] logicalAddress     ;
 	logic       addrInvalid        ;
 	logic       dataLengthInvalid  ;
+
+	// config
+	logic [7:0] configKey          ;
+	logic [7:0] logicalAddress     ;
 
 	initial begin 
 		configKey = 8'h20;
