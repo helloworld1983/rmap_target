@@ -26,11 +26,11 @@ vlib $worklib
 # This function runs compile for Verilog & VHDL files from file list
 #
 # Arguments:
-#    path -- additional path added to files from list
 #    file -- file list path
+#    path -- additional path added to files from list
 #    lib  -- target library (worklib by default)
 #
-proc runfile [list path file [list lib $worklib]] {
+proc runfile [list file [list path ""] [list lib $worklib]] {
     global ver_ext
     global vhd_ext
 
@@ -60,10 +60,8 @@ proc runfile [list path file [list lib $worklib]] {
 }
 
 
-
-runfile "../../src/" "../../src/file_list.txt"
-
-vlog -work $worklib ../tbench/RMAPTargetTop_TB.sv
+runfile "src_list.txt" "../../src/"
+runfile "sim_list.txt" "../tbench/"
 
 # -------------------------------------------------------------------
 # simulate
