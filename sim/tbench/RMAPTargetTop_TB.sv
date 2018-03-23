@@ -30,92 +30,73 @@ module RMAPTargetTop_TB ();
 	localparam ADDR_MAX = 2048;
 	localparam BUS_WIDTH = 32;
 
+	// --------------------------------------------------------
+	// clock & reset generation
+	// --------------------------------------------------------
 
 	bit clk;
 	bit rst;
-
-	// fifo interface
-	logic       txWriteEnable;
-	logic [8:0] txDataIn     ;
-	logic       txFull       ;
-	logic       rxReadEnable ;
-	logic [8:0] rxDataOut    ;
-	logic       rxEmpty      ;
-
-	// wishbone interface
-	logic                     cycOut;
-	logic                     stbOut;
-	logic [             31:0] adrOut;
-	logic [(BUS_WIDTH/8)-1:0] selOut;
-	logic [    BUS_WIDTH-1:0] datIn ;
-	logic [    BUS_WIDTH-1:0] datOut;
-	logic                     weOut ;
-	logic                     ackIn ;
-	logic                     errIn ;
-
-	// status
-	logic [7:0] rmapErrorCode      ;
-	logic       errorIndication    ;
-	logic       writeDataIndication;
-	logic       readDataIndication ;
-	logic       rmwDataIndication  ;
-	logic       addrInvalid        ;
-	logic       dataLengthInvalid  ;
-
-	// config
-	logic [7:0] configKey          ;
-	logic [7:0] logicalAddress     ;
-
-	initial begin 
-		configKey = 8'h20;
-		logicalAddress = 8'hFE;
-	end
-
+	
 	always #10 clk = !clk;
 
 	initial begin 
 		rst = 1;
-		repeat(2) @(posedge clk);
+		@(posedge clk);
 		rst <= 0;
 	end
 
+	// --------------------------------------------------------
+	// interfaces
+	// --------------------------------------------------------
+
+	fifo_if     fifo_if (clk);
+	status_if status_if (clk);
+	wb_if #(BUS_WIDTH) wb_if (clk);
+
+	// --------------------------------------------------------
+	// DUT
+	// --------------------------------------------------------
+
+	RMAPTargetTop #(.ADDR_MIN(ADDR_MIN), .ADDR_MAX(ADDR_MAX), .BUS_WIDTH(BUS_WIDTH)) uRMAPTargetTop (
+		.clk                (clk                          ),
+		.rst                (rst                          ),
+		//
+		.txWriteEnable      (fifo_if.txWriteEnable        ),
+		.txDataIn           (fifo_if.txDataIn             ),
+		.txFull             (fifo_if.txFull               ),
+		.rxReadEnable       (fifo_if.rxReadEnable         ),
+		.rxDataOut          (fifo_if.rxDataOut            ),
+		.rxEmpty            (fifo_if.rxEmpty              ),
+		//
+		.cycOut             (wb_if.cyc                    ),
+		.stbOut             (wb_if.stb                    ),
+		.adrOut             (wb_if.adr                    ),
+		.selOut             (wb_if.sel                    ),
+		.datIn              (wb_if.datMstIn               ),
+		.datOut             (wb_if.datSlvIn               ),
+		.weOut              (wb_if.we                     ),
+		.ackIn              (wb_if.ack                    ),
+		.errIn              (wb_if.err                    ),
+		//
+		.rmapErrorCode      (status_if.rmapErrorCode      ),
+		.errorIndication    (status_if.errorIndication    ),
+		.writeDataIndication(status_if.writeDataIndication),
+		.readDataIndication (status_if.readDataIndication ),
+		.rmwDataIndication  (status_if.rmwDataIndication  ),
+		.configKey          (status_if.configKey          ),
+		.logicalAddress     (status_if.logicalAddress     ),
+		.addrInvalid        (status_if.addrInvalid        ),
+		.dataLengthInvalid  (status_if.dataLengthInvalid  )
+	);
+
+	// temp timeout
 	initial begin 
-		repeat(5000) @(posedge clk);
+		repeat(50) @(posedge clk);
 		$error("%t : SIMULATION TERMINATED BY TIMEOUT",$time);
 		$finish;
 	end
 
 
-	RMAPTargetTop #(.ADDR_MIN(ADDR_MIN), .ADDR_MAX(ADDR_MAX), .BUS_WIDTH(BUS_WIDTH)) uRMAPTargetTop (
-		.clk                (clk                ),
-		.rst                (rst                ),
-		//
-		.txWriteEnable      (txWriteEnable      ),
-		.txDataIn           (txDataIn           ),
-		.txFull             (txFull             ),
-		.rxReadEnable       (rxReadEnable       ),
-		.rxDataOut          (rxDataOut          ),
-		.rxEmpty            (rxEmpty            ),
-		//
-		.cycOut             (cycOut             ),
-		.stbOut             (stbOut             ),
-		.adrOut             (adrOut             ),
-		.selOut             (selOut             ),
-		.datIn              (datIn              ),
-		.datOut             (datOut             ),
-		.weOut              (weOut              ),
-		.ackIn              (ackIn              ),
-		.errIn              (errIn              ),
-		//
-		.rmapErrorCode      (rmapErrorCode      ),
-		.errorIndication    (errorIndication    ),
-		.writeDataIndication(writeDataIndication),
-		.readDataIndication (readDataIndication ),
-		.rmwDataIndication  (rmwDataIndication  ),
-		.configKey          (configKey          ),
-		.logicalAddress     (logicalAddress     ),
-		.addrInvalid        (addrInvalid        ),
-		.dataLengthInvalid  (dataLengthInvalid  )
-	);
+
 
 endmodule
