@@ -41,8 +41,7 @@ module RMAPTargetTop_TB ();
 
 	initial begin 
 		rst = 1;
-		@(posedge clk);
-		rst <= 0;
+		@(posedge clk) rst <= 0;
 	end
 
 	// --------------------------------------------------------

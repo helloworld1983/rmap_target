@@ -27,7 +27,7 @@ vlib $worklib
 #
 # Arguments:
 #    file -- file list path
-#    path -- additional path added to files from list
+#    path -- additional path added to files from list (empty by default)
 #    lib  -- target library (worklib by default)
 #
 proc runfile [list file [list path ""] [list lib $worklib]] {
