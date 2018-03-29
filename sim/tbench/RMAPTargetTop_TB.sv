@@ -48,9 +48,10 @@ module RMAPTargetTop_TB ();
 	// interfaces
 	// --------------------------------------------------------
 
-	fifo_if     fifo_if (clk);
-	status_if status_if (clk);
-	wb_if #(BUS_WIDTH) wb_if (clk);
+	txFIFOif txFIFOif (clk);
+	rxFIFOif rxFIFOif (clk);
+	statusIf statusIf (clk);
+	wbIf #(BUS_WIDTH) wbIf (clk);
 
 	// --------------------------------------------------------
 	// DUT
@@ -60,42 +61,32 @@ module RMAPTargetTop_TB ();
 		.clk                (clk                          ),
 		.rst                (rst                          ),
 		//
-		.txWriteEnable      (fifo_if.txWriteEnable        ),
-		.txDataIn           (fifo_if.txDataIn             ),
-		.txFull             (fifo_if.txFull               ),
-		.rxReadEnable       (fifo_if.rxReadEnable         ),
-		.rxDataOut          (fifo_if.rxDataOut            ),
-		.rxEmpty            (fifo_if.rxEmpty              ),
+		.txWriteEnable      (txFIFOif.writeEnable        ),
+		.txDataIn           (txFIFOif.dataIn             ),
+		.txFull             (txFIFOif.full               ),
+		.rxReadEnable       (rxFIFOif.readEnable         ),
+		.rxDataOut          (rxFIFOif.dataOut            ),
+		.rxEmpty            (rxFIFOif.empty              ),
 		//
-		.cycOut             (wb_if.cyc                    ),
-		.stbOut             (wb_if.stb                    ),
-		.adrOut             (wb_if.adr                    ),
-		.selOut             (wb_if.sel                    ),
-		.datIn              (wb_if.datMstIn               ),
-		.datOut             (wb_if.datSlvIn               ),
-		.weOut              (wb_if.we                     ),
-		.ackIn              (wb_if.ack                    ),
-		.errIn              (wb_if.err                    ),
+		.cycOut             (wbIf.cyc                    ),
+		.stbOut             (wbIf.stb                    ),
+		.adrOut             (wbIf.adr                    ),
+		.selOut             (wbIf.sel                    ),
+		.datIn              (wbIf.datMstIn               ),
+		.datOut             (wbIf.datSlvIn               ),
+		.weOut              (wbIf.we                     ),
+		.ackIn              (wbIf.ack                    ),
+		.errIn              (wbIf.err                    ),
 		//
-		.rmapErrorCode      (status_if.rmapErrorCode      ),
-		.errorIndication    (status_if.errorIndication    ),
-		.writeDataIndication(status_if.writeDataIndication),
-		.readDataIndication (status_if.readDataIndication ),
-		.rmwDataIndication  (status_if.rmwDataIndication  ),
-		.configKey          (status_if.configKey          ),
-		.logicalAddress     (status_if.logicalAddress     ),
-		.addrInvalid        (status_if.addrInvalid        ),
-		.dataLengthInvalid  (status_if.dataLengthInvalid  )
+		.rmapErrorCode      (statusIf.rmapErrorCode      ),
+		.errorIndication    (statusIf.errorIndication    ),
+		.writeDataIndication(statusIf.writeDataIndication),
+		.readDataIndication (statusIf.readDataIndication ),
+		.rmwDataIndication  (statusIf.rmwDataIndication  ),
+		.configKey          (statusIf.configKey          ),
+		.logicalAddress     (statusIf.logicalAddress     ),
+		.addrInvalid        (statusIf.addrInvalid        ),
+		.dataLengthInvalid  (statusIf.dataLengthInvalid  )
 	);
-
-	// temp timeout
-	initial begin 
-		repeat(50) @(posedge clk);
-		$error("%t : SIMULATION TERMINATED BY TIMEOUT",$time);
-		$finish;
-	end
-
-
-
 
 endmodule

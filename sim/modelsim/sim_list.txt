@@ -9,7 +9,8 @@
 #
 
 # testbench
-fifo_interface.sv
-wb_interface.sv
-status_interface.sv
+txFIFOif.sv
+rxFIFOif.sv
+wbIf.sv
+statusIf.sv
 RMAPTargetTop_TB.sv
