@@ -23,49 +23,32 @@
     -- THE SOFTWARE.
     -------------------------------------------------------------------------------
 */
-interface fifo_if(input logic clk);
+interface txFIFOif(input logic clk);
     
-    logic       txWriteEnable;
-    logic [8:0] txDataIn     ;
-    logic       txFull       ;
-
-    logic       rxReadEnable;
-    logic [8:0] rxDataOut   ;
-    logic       rxEmpty     ;
+    logic       writeEnable;
+    logic [8:0] dataIn     ;
+    logic       full       ;
 
     // ---------------------------------------
     // driver 
     // ---------------------------------------
-    clocking txDrvCB @(posedge clk);
+    clocking drvCB @(posedge clk);
         default input #1 output #1;
-        input  txWriteEnable;
-        input  txDataIn     ;
-        output txFull       ;
+        input  writeEnable;
+        input  dataIn     ;
+        output full       ;
     endclocking
     
-    modport txDrv (clocking txDrvCB, input clk); 
-
-
-    clocking rxDrvCB @(posedge clk);
-        default input #1 output #1;
-        input  rxReadEnable;
-        output rxDataOut   ;
-        output rxEmpty     ;
-    endclocking
-    
-    modport rxDrv (clocking txDrvCB, input clk);
+    modport drv (clocking drvCB, input clk); 
 
     // ---------------------------------------
     // monitor
     // ---------------------------------------
     clocking monCB @(posedge clk);
         default input #1 output #1;
-        input txWriteEnable;
-        input txDataIn     ;
-        input txFull       ;
-        input rxReadEnable ;
-        input rxDataOut    ;
-        input rxEmpty      ;
+        input writeEnable;
+        input dataIn     ;
+        input full       ;
     endclocking
         
     modport mon (clocking monCB, input clk);

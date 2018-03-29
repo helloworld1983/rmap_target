@@ -26,7 +26,7 @@
 	Interface for monitoring status & control signals in testbench.
 
 */
-interface status_if (input logic clk);
+interface statusIf (input logic clk);
     
     // default status signals
     logic [7:0] rmapErrorCode      ;

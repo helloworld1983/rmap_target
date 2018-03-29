@@ -26,7 +26,7 @@
 	Wishbone interface.
 
 */
-interface wb_if #(BUS_WIDTH=32)(input logic clk);
+interface wbIf #(BUS_WIDTH=32)(input logic clk);
     
 	logic                     cyc     ;
 	logic                     stb     ;
