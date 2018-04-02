@@ -26,8 +26,22 @@ add wave -noupdate -expand -group {Status & config} -radix hexadecimal /RMAPTarg
 add wave -noupdate -expand -group {Status & config} -radix hexadecimal /RMAPTargetTop_TB/uRMAPTargetTop/logicalAddress
 add wave -noupdate -expand -group {Status & config} /RMAPTargetTop_TB/uRMAPTargetTop/addrInvalid
 add wave -noupdate -expand -group {Status & config} /RMAPTargetTop_TB/uRMAPTargetTop/dataLengthInvalid
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/configKey
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/logicalAddress
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapLogicalAddress
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapCommand
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapKey
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapExtendedAddress
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapAddress
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rmapDataLength
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/requestAuthorization
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/authorizeAck
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/rejectAck
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/replyStatus
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/addrInvalid
+add wave -noupdate -expand -group Authenticator /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPAuthentication/dataLengthInvalid
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {31220 ps} 0}
+WaveRestoreCursors {{Cursor 1} {45 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 172
 configure wave -valuecolwidth 100
@@ -43,4 +57,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {104990 ps}
+WaveRestoreZoom {0 ps} {723 ps}
