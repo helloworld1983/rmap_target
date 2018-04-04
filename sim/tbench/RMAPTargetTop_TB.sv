@@ -92,7 +92,7 @@ module RMAPTargetTop_TB ();
 	initial begin 
 		repeat(5000) @(posedge clk);
 		$error("%t : SIMULATION TERMINATED BY TIMEOUT",$time);
-		$finish;
+		$stop;
 	end
 
 	// main
@@ -100,12 +100,15 @@ module RMAPTargetTop_TB ();
 		// wait for reset
 		while(rst) @(posedge clk);
 
+		
 		// start interface signals
 		fork
 			// tx fifo interface
-			forever @(posedge clk) txFull <= $urandom_range(1);
+			txFull = 1;
+			forever @(posedge clk) txFull <= (txFull) ? ($urandom_range(5) == 0) : txFull;
 
 			// wishbone interface
+			ackIn = 0;
 			forever @(posedge clk) ackIn <= $urandom_range(1);
 			datIn = 0;
 			errIn = 0;
@@ -117,6 +120,12 @@ module RMAPTargetTop_TB ();
 
 		// send packets to DUT
 		writeRMAP(32'h4,32'h89AB_CDEF,16'h45_67);
+
+
+		// finish sim
+		repeat(100) @(posedge clk);
+		$display("%t : Main task successfully completed.",$time);
+		$stop;
 	end
 
 	// ---------------------------------------------------
@@ -124,56 +133,53 @@ module RMAPTargetTop_TB ();
 	// ---------------------------------------------------
 
 	task writeRMAP(
-			ubyte [3:0] addrIn         ,
-			ubyte [3:0] dataIn         ,
-			ubyte [1:0] transIDIn      ,
-			ubyte key           = 8'h20,
-			// ubyte replyAddr  [] ={8'hZ}, // should be 0,4,8 or 12 size
-			ubyte targLogAddr   = 8'hFE,
-			ubyte initLogAddr   = 8'hFE
-		);
+			bit [3:0][7:0] addr                 ,
+			bit [3:0][7:0] data                 ,
+			bit [1:0][7:0] transID              ,
+			ubyte          key           = 8'h20,
+			// ubyte          replyAddr  [] ={8'hZ}, // should be 0,4,8 or 12 size
+			ubyte          targLogAddr   = 8'hFE,
+			ubyte          initLogAddr   = 8'hFE
+			);
 
-		static ubyte       protocolID  = 8'h01;
-		static ubyte       instruction = {2'b01,4'b1110,2'b00/*replyAddr.size()/4*/};
-		static ubyte       extAddr     = 8'h00;
-		static ubyte [2:0] dataLen     = 24'd4;
+		static ubyte          protocolID  = 8'h01;
+		static ubyte          instruction = {2'b01,4'b1110,2'b00/*replyAddr.size()/4*/};
+		static ubyte          extAddr     = 8'h00;
+		static bit [2:0][7:0] dataLen     = 24'd4;
 
-		ubyte addr      [4];
-		ubyte data      [4];
-		ubyte transID   [2];
+		ubyte dataForCRC[4];
 
 		ubyte packet[$];
 
-		// convert to unpacket types
-		foreach(addr[i]) addr[i] = addrIn[i];
-		foreach(data[i]) data[i] = dataIn[i];
-		foreach(transID[i]) transID[i] = transIDIn[i];
+
+		// convert data to unpacket array
+		foreach(dataForCRC[i]) dataForCRC[i] = data[3-i];
 
 		// prepare RMAP packet
 		packet.push_back(targLogAddr);
 		packet.push_back(protocolID);
 		packet.push_back(instruction);
 		packet.push_back(key);
-		// if(replyAddr != 8'hZ) begin
-		// 	for (int i = 0; i < replyAddr.size(); i++) begin
-		// 		packet.push_back(replyAddr[i]);
-		// 	end
-		// end
+		//
+		// here should be replyAddr, but not implemented yet
+		//
 		packet.push_back(initLogAddr);
 		packet.push_back(transID[1]);
 		packet.push_back(transID[0]);
 		packet.push_back(extAddr);
-		for (int i = 3; i >= 0; i--) begin
-			packet.push_back(addr[i]);
-		end
-		for (int i = 2; i >= 0; i--) begin
-			packet.push_back(dataLen[i]);
-		end
+		packet.push_back(addr[3]);
+		packet.push_back(addr[2]);
+		packet.push_back(addr[1]);
+		packet.push_back(addr[0]);
+		packet.push_back(dataLen[2]);
+		packet.push_back(dataLen[1]);
+		packet.push_back(dataLen[0]);
 		packet.push_back(calcCRC(packet)); 
-		for (int i = 3; i >= 0; i--) begin
-			packet.push_back(data[i]);
-		end
-		packet.push_back(calcCRC(data)); 
+		packet.push_back(data[3]);
+		packet.push_back(data[2]);
+		packet.push_back(data[1]);
+		packet.push_back(data[0]);
+		packet.push_back(calcCRC(dataForCRC)); 
 
 		// send packet
 		rxGetsPacket(packet);
@@ -183,6 +189,7 @@ module RMAPTargetTop_TB ();
 
 	// calculate CRC for RMAP packets
 	function ubyte calcCRC(ubyte data[]);
+		static ubyte crc;
 		static ubyte crcTable[] = {'h00, 'h91, 'he3, 'h72, 'h07, 'h96, 'he4, 'h75, 
 		                          'h0e, 'h9f, 'hed, 'h7c, 'h09, 'h98, 'hea, 'h7b, 
 		                          'h1c, 'h8d, 'hff, 'h6e, 'h1b, 'h8a, 'hf8, 'h69, 
@@ -216,9 +223,8 @@ module RMAPTargetTop_TB ();
 		                          'hb4, 'h25, 'h57, 'hc6, 'hb3, 'h22, 'h50, 'hc1, 
 		                          'hba, 'h2b, 'h59, 'hc8, 'hbd, 'h2c, 'h5e, 'hcf};
 
-		static ubyte crc = 0;
-		
-		for (int i = data.size()-1; i >= 0; i--) begin
+		crc = 0;
+		for (int i = 0; i < data.size(); i++) begin
 			crc = crcTable[crc ^ data[i]];
 		end
 
