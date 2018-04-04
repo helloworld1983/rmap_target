@@ -105,7 +105,7 @@ module RMAPTargetTop_TB ();
 		fork
 			// tx fifo interface
 			txFull = 1;
-			forever @(posedge clk) txFull <= (txFull) ? ($urandom_range(5) == 0) : txFull;
+			forever @(posedge clk) txFull <= (txFull | txWriteEnable) ? ($urandom_range(5) != 0) : txFull;
 
 			// wishbone interface
 			ackIn = 0;
@@ -119,11 +119,14 @@ module RMAPTargetTop_TB ();
 		join_none
 
 		// send packets to DUT
-		writeRMAP(32'h4,32'h89AB_CDEF,16'h45_67);
+		writeRMAP(32'h04,32'h89AB_CDEF); // write single
+		readRMAP(32'h04);   // read single
+ 		readRMAP(32'h08,3); // read incremental
+	 	rmwRMAP(32'h10,32'hAAFF_99FF,32'hFF00_FF00); // read-modify-write
 
 
 		// finish sim
-		repeat(100) @(posedge clk);
+		repeat(200) @(posedge clk);
 		$display("%t : Main task successfully completed.",$time);
 		$stop;
 	end
@@ -132,14 +135,14 @@ module RMAPTargetTop_TB ();
 	// Tasks
 	// ---------------------------------------------------
 
-	task writeRMAP(
-			bit [3:0][7:0] addr                 ,
-			bit [3:0][7:0] data                 ,
-			bit [1:0][7:0] transID              ,
-			ubyte          key           = 8'h20,
+	task writeRMAP (
+			bit [3:0][7:0] addr                                 ,
+			bit [3:0][7:0] data                                 ,
+			bit [1:0][7:0] transID       = $urandom_range(65536),
+			ubyte          key           = 8'h20                ,
 			// ubyte          replyAddr  [] ={8'hZ}, // should be 0,4,8 or 12 size
-			ubyte          targLogAddr   = 8'hFE,
-			ubyte          initLogAddr   = 8'hFE
+			ubyte          targLogAddr   = 8'hFE                ,
+			ubyte          initLogAddr   = 8'h99
 			);
 
 		static ubyte          protocolID  = 8'h01;
@@ -147,13 +150,64 @@ module RMAPTargetTop_TB ();
 		static ubyte          extAddr     = 8'h00;
 		static bit [2:0][7:0] dataLen     = 24'd4;
 
-		ubyte dataForCRC[4];
+		ubyte dataForCRC[$];
+		ubyte packet[$];
+
+		dataForCRC.delete();
+		packet.delete();
+
+		// prepare RMAP packet
+		packet.push_back(targLogAddr);
+		packet.push_back(protocolID);
+		packet.push_back(instruction);
+		packet.push_back(key);
+		//
+		// here should be replyAddr, but not implemented yet
+		//
+		packet.push_back(initLogAddr);
+		packet.push_back(transID[1]);
+		packet.push_back(transID[0]);
+		packet.push_back(extAddr);
+		packet.push_back(addr[3]);
+		packet.push_back(addr[2]);
+		packet.push_back(addr[1]);
+		packet.push_back(addr[0]);
+		packet.push_back(dataLen[2]);
+		packet.push_back(dataLen[1]);
+		packet.push_back(dataLen[0]);
+		packet.push_back(calcCRC(packet));  
+		packet.push_back(data[3]); dataForCRC.push_back(data[3]); 
+		packet.push_back(data[2]); dataForCRC.push_back(data[2]); 
+		packet.push_back(data[1]); dataForCRC.push_back(data[1]); 
+		packet.push_back(data[0]); dataForCRC.push_back(data[0]); 
+		packet.push_back(calcCRC(dataForCRC)); 
+
+		// send packet
+		rxGetsPacket(packet);
+	endtask : writeRMAP
+
+	task readRMAP (
+			bit [3:0][7:0] addr                                 ,
+			int 		   wordNum       = 1                    , 
+			bit [1:0][7:0] transID       = $urandom_range(65536),
+			ubyte          key           = 8'h20                ,
+			// ubyte          replyAddr  [] ={8'hZ}, // should be 0,4,8 or 12 size
+			ubyte          targLogAddr   = 8'hFE                ,
+			ubyte          initLogAddr   = 8'h99
+			);
+
+		static ubyte          protocolID  = 8'h01;
+		static ubyte          instruction = {2'b01,4'b1110,2'b00/*replyAddr.size()/4*/};
+		static ubyte          extAddr     = 8'h00;
+		static bit [2:0][7:0] dataLen     ;
 
 		ubyte packet[$];
 
+ 		// increment or nor increment
+		instruction = (wordNum > 1) ? {2'b01,4'b0011,2'b00} : {2'b01,4'b0010,2'b00};
+		dataLen     = wordNum*4;
 
-		// convert data to unpacket array
-		foreach(dataForCRC[i]) dataForCRC[i] = data[3-i];
+		packet.delete();
 
 		// prepare RMAP packet
 		packet.push_back(targLogAddr);
@@ -175,17 +229,66 @@ module RMAPTargetTop_TB ();
 		packet.push_back(dataLen[1]);
 		packet.push_back(dataLen[0]);
 		packet.push_back(calcCRC(packet)); 
-		packet.push_back(data[3]);
-		packet.push_back(data[2]);
-		packet.push_back(data[1]);
-		packet.push_back(data[0]);
+
+		// send packet
+		rxGetsPacket(packet);
+	endtask : readRMAP
+
+	task rmwRMAP (
+			bit [3:0][7:0] addr                                 ,
+			bit [3:0][7:0] data                                 ,
+			bit [3:0][7:0] mask                                 ,
+			bit [1:0][7:0] transID       = $urandom_range(65536),
+			ubyte          key           = 8'h20                ,
+			// ubyte          replyAddr  [] ={8'hZ}, // should be 0,4,8 or 12 size
+			ubyte          targLogAddr   = 8'hFE                ,
+			ubyte          initLogAddr   = 8'h99
+			);
+
+		static ubyte          protocolID  = 8'h01;
+		static ubyte          instruction = {2'b01,4'b0111,2'b00/*replyAddr.size()/4*/};
+		static ubyte          extAddr     = 8'h00;
+		static bit [2:0][7:0] dataLen     = 24'd8;
+
+		ubyte dataForCRC[$];
+		ubyte packet[$];
+
+		packet.delete();
+		dataForCRC.delete();
+
+		// prepare RMAP packet
+		packet.push_back(targLogAddr);
+		packet.push_back(protocolID);
+		packet.push_back(instruction);
+		packet.push_back(key);
+		//
+		// here should be replyAddr, but not implemented yet
+		//
+		packet.push_back(initLogAddr);
+		packet.push_back(transID[1]);
+		packet.push_back(transID[0]);
+		packet.push_back(extAddr);
+		packet.push_back(addr[3]);
+		packet.push_back(addr[2]);
+		packet.push_back(addr[1]);
+		packet.push_back(addr[0]);
+		packet.push_back(dataLen[2]);
+		packet.push_back(dataLen[1]);
+		packet.push_back(dataLen[0]);
+		packet.push_back(calcCRC(packet)); 
+		packet.push_back(data[3]); dataForCRC.push_back(data[3]);
+		packet.push_back(data[2]); dataForCRC.push_back(data[2]);
+		packet.push_back(data[1]); dataForCRC.push_back(data[1]);
+		packet.push_back(data[0]); dataForCRC.push_back(data[0]);
+		packet.push_back(mask[3]); dataForCRC.push_back(mask[3]);
+		packet.push_back(mask[2]); dataForCRC.push_back(mask[2]);
+		packet.push_back(mask[1]); dataForCRC.push_back(mask[1]);
+		packet.push_back(mask[0]); dataForCRC.push_back(mask[0]);
 		packet.push_back(calcCRC(dataForCRC)); 
 
 		// send packet
 		rxGetsPacket(packet);
-		
-	endtask : writeRMAP
-
+	endtask : rmwRMAP
 
 	// calculate CRC for RMAP packets
 	function ubyte calcCRC(ubyte data[]);
