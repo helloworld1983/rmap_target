@@ -112,9 +112,9 @@ architecture behavioral of RMAPTargetIPDMAController is
     signal iReadModifyWriteAddressOut    : std_logic_vector (31 downto 0);
     signal iReadModifyWriteBufferCount   : std_logic_vector (3 downto 0);
     signal iReadModifyWriteDataLength    : std_logic_vector (2 downto 0);
-    signal iReadModifyWriteByteCount     : integer range 0 to 4;
+    signal iReadModifyWriteByteCount     : integer range 0 to 5;
     signal iReadModifyWriteReadData      : std_logic_vector (31 downto 0);
-    signal iReadModifyWriteReadDataCount : integer range 0 to 3;
+    signal iReadModifyWriteReadDataCount : integer range 0 to 4;
     signal iReadModifyWriteWriteData     : std_logic_vector (31 downto 0);
     signal iReadModifyWriteMaskData      : std_logic_vector (31 downto 0);
     signal iReadModifyWriteCommand       : std_logic;
