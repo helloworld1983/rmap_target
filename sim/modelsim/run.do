@@ -63,7 +63,7 @@ proc runfile [list path file [list lib $worklib]] {
 
 runfile "../../src/" "../../src/file_list.txt"
 
-vlog -work $worklib ../tbench/RMAPTargetTop_TB.sv
+vlog -work $worklib ../simple_tbench/RMAPTargetTop_TB.sv
 
 # -------------------------------------------------------------------
 # simulate
