@@ -22,6 +22,10 @@
 	-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	-- THE SOFTWARE.
 	-------------------------------------------------------------------------------
+
+	This is simple testbench for RMAP IP core. It just shows basics operations and 
+	do not provide any checks. However, tasks and functions from this testbench 
+	may be useful.
 */
 
 module RMAPTargetTop_TB ();
