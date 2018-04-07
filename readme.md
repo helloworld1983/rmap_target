@@ -42,4 +42,8 @@ Nowadays RMAP protocol is widely used in SpaceWire networks. In its turn, SpaceW
 3. Improve speed of reading and writing to/from FIFO interfaces.
 4. Make a project on <https://www.edaplayground.com/>
 
+## Useful documentation:
 
+* SpaceWire - Remote memory access protocol (ECSS-E-ST-50-52C, 5 February 2010).
+* Wishbone B4 specification (2010 OpenCores).
+* Atmel SpaceWire Router AT7910E User guide (good example of typical application for RMAP IP).
