@@ -48,10 +48,10 @@ module RMAPTargetTop_TB ();
 	// interfaces
 	// --------------------------------------------------------
 
-	txFIFOif txFIFOif (clk);
-	rxFIFOif rxFIFOif (clk);
-	statusIf statusIf (clk);
-	wbIf #(BUS_WIDTH) wbIf (clk);
+	txFIFOif              tx_fifo_if (clk);
+	rxFIFOif              rx_fifo_if (clk);
+	statusIf              status_if  (clk);
+	wbIf     #(BUS_WIDTH) wb_if      (clk);
 
 	// --------------------------------------------------------
 	// DUT
@@ -61,32 +61,46 @@ module RMAPTargetTop_TB ();
 		.clk                (clk                          ),
 		.rst                (rst                          ),
 		//
-		.txWriteEnable      (txFIFOif.writeEnable        ),
-		.txDataIn           (txFIFOif.dataIn             ),
-		.txFull             (txFIFOif.full               ),
-		.rxReadEnable       (rxFIFOif.readEnable         ),
-		.rxDataOut          (rxFIFOif.dataOut            ),
-		.rxEmpty            (rxFIFOif.empty              ),
+		.txWriteEnable      (tx_fifo_if.writeEnable        ),
+		.txDataIn           (tx_fifo_if.dataIn             ),
+		.txFull             (tx_fifo_if.full               ),
+		.rxReadEnable       (rx_fifo_if.readEnable         ),
+		.rxDataOut          (rx_fifo_if.dataOut            ),
+		.rxEmpty            (rx_fifo_if.empty              ),
 		//
-		.cycOut             (wbIf.cyc                    ),
-		.stbOut             (wbIf.stb                    ),
-		.adrOut             (wbIf.adr                    ),
-		.selOut             (wbIf.sel                    ),
-		.datIn              (wbIf.datMstIn               ),
-		.datOut             (wbIf.datSlvIn               ),
-		.weOut              (wbIf.we                     ),
-		.ackIn              (wbIf.ack                    ),
-		.errIn              (wbIf.err                    ),
+		.cycOut             (wb_if.cyc                    ),
+		.stbOut             (wb_if.stb                    ),
+		.adrOut             (wb_if.adr                    ),
+		.selOut             (wb_if.sel                    ),
+		.datIn              (wb_if.datMstIn               ),
+		.datOut             (wb_if.datSlvIn               ),
+		.weOut              (wb_if.we                     ),
+		.ackIn              (wb_if.ack                    ),
+		.errIn              (wb_if.err                    ),
 		//
-		.rmapErrorCode      (statusIf.rmapErrorCode      ),
-		.errorIndication    (statusIf.errorIndication    ),
-		.writeDataIndication(statusIf.writeDataIndication),
-		.readDataIndication (statusIf.readDataIndication ),
-		.rmwDataIndication  (statusIf.rmwDataIndication  ),
-		.configKey          (statusIf.configKey          ),
-		.logicalAddress     (statusIf.logicalAddress     ),
-		.addrInvalid        (statusIf.addrInvalid        ),
-		.dataLengthInvalid  (statusIf.dataLengthInvalid  )
+		.rmapErrorCode      (status_if.rmapErrorCode      ),
+		.errorIndication    (status_if.errorIndication    ),
+		.writeDataIndication(status_if.writeDataIndication),
+		.readDataIndication (status_if.readDataIndication ),
+		.rmwDataIndication  (status_if.rmwDataIndication  ),
+		.configKey          (status_if.configKey          ),
+		.logicalAddress     (status_if.logicalAddress     ),
+		.addrInvalid        (status_if.addrInvalid        ),
+		.dataLengthInvalid  (status_if.dataLengthInvalid  )
 	);
+
+
+	initial begin
+		uvm_config_db#(virtual txFIFOif)::set(uvm_root::get(),"*","tx_fifo_if",tx_fifo_if);
+		uvm_config_db#(virtual rxFIFOif)::set(uvm_root::get(),"*","rx_fifo_if",rx_fifo_if);
+		uvm_config_db#(virtual statusIf)::set(uvm_root::get(),"*","status_if" ,status_if );
+		uvm_config_db#(virtual wbIf    )::set(uvm_root::get(),"*","wb_if"     ,wb_if     );
+		
+		$dumpfile("dump.vcd"); $dumpvars;
+	end
+	 
+	initial begin
+		run_test("RMAPTargetTop_test_tmp");
+	end
 
 endmodule
