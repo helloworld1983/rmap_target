@@ -9,8 +9,4 @@
 #
 
 # testbench
-txFIFOif.sv
-rxFIFOif.sv
-wbIf.sv
-statusIf.sv
 RMAPTargetTop_TB.sv

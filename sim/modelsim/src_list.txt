@@ -9,7 +9,8 @@
 #
 
 # low-level cores
-RMAPTargetIPCRCRom.sv
+# RMAPTargetIPCRCRom.sv
+RMAPTargetIPCRCRom.vhd
 RMAPTargetIPFIFO.sv
 
 # rmap target core

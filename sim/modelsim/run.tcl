@@ -61,7 +61,7 @@ proc runfile [list file [list path ""] [list lib $worklib]] {
 
 
 runfile "src_list.txt" "../../src/"
-runfile "sim_list.txt" "../uvm_tbench/"
+runfile "sim_list.txt" "../"
 
 # -------------------------------------------------------------------
 # simulate
