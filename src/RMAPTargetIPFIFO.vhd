@@ -57,7 +57,7 @@ architecture behavioral of RMAPTargetIPFIFO is
 	signal rd_pointer : integer range 0 to RAM_DEPTH-1;
 
 	signal statusCntrReg : integer range 0 to RAM_DEPTH;
-	signal statusCntrNxt : integer range 0 to RAM_DEPTH;
+	signal statusCntrNxt : integer range 0 to RAM_DEPTH+1;
 
 	signal iFull  : std_logic;
 	signal iEmpty : std_logic;
@@ -73,8 +73,10 @@ begin
 	full <= iFull;
 
 	process (clk) begin
-		dataOut <= mem(rd_pointer) when (rdEnable and not iEmpty); 
-		mem(wr_pointer) <= dataIn when (wrEnable and not iFull); 
+		if(rising_edge(clk)) then
+			dataOut <= mem(rd_pointer) when (rdEnable and not iEmpty); 
+			mem(wr_pointer) <= dataIn when (wrEnable and not iFull); 
+		end if;
 	end process;
 
 	process (rst, clk) begin
@@ -91,7 +93,7 @@ begin
 		end if;
 	end process;
 
-	process (rdEnable, wrEnable, iFull, iEmpty) begin
+	process (rdEnable, wrEnable, iFull, iEmpty, statusCntrReg) begin
 		if((rdEnable and not iEmpty) and not(wrEnable and not iFull)) then
 			statusCntrNxt <= statusCntrReg + 1; -- Read but not write
 		elsif(not(rdEnable and not iEmpty) and (wrEnable and not iFull)) then 

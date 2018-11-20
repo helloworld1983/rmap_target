@@ -44,8 +44,24 @@ add wave -noupdate /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/co
 add wave -noupdate /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/replyStateOut
 add wave -noupdate -radix hexadecimal /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/iCommandCRC
 add wave -noupdate -radix hexadecimal /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/iReceiveData
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/clk
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/rst
+add wave -noupdate -expand -group {wr fifo} -radix hexadecimal /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/dataIn
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/wrEnable
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/full
+add wave -noupdate -expand -group {wr fifo} -radix hexadecimal /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/dataOut
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/rdEnable
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/empty
+add wave -noupdate -expand -group {wr fifo} -radix unsigned /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/statusCntr
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/wr_pointer
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/rd_pointer
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/statusCntrReg
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/statusCntrNxt
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/iFull
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/iEmpty
+add wave -noupdate -expand -group {wr fifo} /RMAPTargetTop_TB/uRMAPTargetTop/uRMAPTargetIP/RMAPDecoder/UserFIFO/writeBuffer/mem
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {328 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2850 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 172
 configure wave -valuecolwidth 100
@@ -61,4 +77,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1394 ps} {3036 ps}
+WaveRestoreZoom {2655 ps} {3013 ps}
