@@ -10,8 +10,9 @@
 
 # low-level cores
 # RMAPTargetIPCRCRom.sv
+# RMAPTargetIPFIFO.sv
 RMAPTargetIPCRCRom.vhd
-RMAPTargetIPFIFO.sv
+RMAPTargetIPFIFO.vhd
 
 # rmap target core
 RMAPTargetIPPackage.vhdl

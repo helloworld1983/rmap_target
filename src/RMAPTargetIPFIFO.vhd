@@ -41,8 +41,7 @@ entity RMAPTargetIPFIFO is
 		wrEnable   : in  std_logic                                      ;
 		full       : out std_logic                                      ;
 		-- read interface
-		dataOut    : out std_logic_vec
-		tor(DATA_WIDTH-1 downto 0)        ;
+		dataOut    : out std_logic_vector(DATA_WIDTH-1 downto 0)        ;
 		rdEnable   : in  std_logic                                      ;
 		empty      : out std_logic                                      ;
 		-- empty space counter
@@ -52,45 +51,50 @@ end RMAPTargetIPFIFO;
 
 architecture behavioral of RMAPTargetIPFIFO is
     
-	constant RAM_DEPTH : integer := ; -- to do
+	constant RAM_DEPTH : integer := 2**ADDR_WIDTH;
 
-	signal wr_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);
-	signal rd_pointer : std_logic_vector(ADDR_WIDTH-1 downto 0);
+	signal wr_pointer : integer range 0 to RAM_DEPTH-1;
+	signal rd_pointer : integer range 0 to RAM_DEPTH-1;
 
-	signal statusCntrReg : std_logic_vector(ADDR_WIDTH downto 0);
-	signal statusCntrNxt : std_logic_vector(ADDR_WIDTH downto 0);
+	signal statusCntrReg : integer range 0 to RAM_DEPTH;
+	signal statusCntrNxt : integer range 0 to RAM_DEPTH;
+
+	signal iFull  : std_logic;
+	signal iEmpty : std_logic;
 
 	type memory_t is array (0 to RAM_DEPTH-1) of std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal mem : memory_t;
 
 begin
 
-	statusCntr <= statusCntrReg(ADDR_WIDTH-1 downto 0);
-	empty <= statusCntrReg(ADDR_WIDTH);
+	statusCntr <= std_logic_vector(to_unsigned(statusCntrReg, statusCntr'length));
+	iEmpty <= '1' when statusCntrReg = RAM_DEPTH else '0';
+	empty <= iEmpty;
+	full <= iFull;
 
 	process (clk) begin
-		dataOut <= mem(rd_pointer) when (rdEnable and not empty); 
-		mem(wr_pointer) <= dataIn when (wrEnable and not full); 
+		dataOut <= mem(rd_pointer) when (rdEnable and not iEmpty); 
+		mem(wr_pointer) <= dataIn when (wrEnable and not iFull); 
 	end process;
 
 	process (rst, clk) begin
 		if(rst = '1') then
-			full <= '0';
-			wr_pointer <= (others => '0');
-			rd_pointer <= (others => '0');
-			statusCntrReg <= RAM_DEPTH; -- to do
+			iFull <= '0';
+			wr_pointer <= 0;
+			rd_pointer <= 0;
+			statusCntrReg <= RAM_DEPTH; 
 		elsif(rising_edge(clk)) then
-			full <= '1' when statusCntrNxt = (statusCntrNxt'range => '0') else '0';
-			wr_pointer <= wr_pointer + 1 when (wrEnable and not full);
-			rd_pointer <= rd_pointer + 1 when (rdEnable and not empty);
+			iFull <= '1' when statusCntrNxt = 0 else '0';
+			wr_pointer <= wr_pointer + 1 when (wrEnable and not iFull);
+			rd_pointer <= rd_pointer + 1 when (rdEnable and not iEmpty);
 			statusCntrReg <= statusCntrNxt;
 		end if;
 	end process;
 
-	process (rdEnable, wrEnable, full, empty) begin
-		if((rdEnable and not empty) and not(wrEnable and not full)) then
+	process (rdEnable, wrEnable, iFull, iEmpty) begin
+		if((rdEnable and not iEmpty) and not(wrEnable and not iFull)) then
 			statusCntrNxt <= statusCntrReg + 1; -- Read but not write
-		elsif(not(rdEnable and not empty) and (wrEnable and not full)) then 
+		elsif(not(rdEnable and not iEmpty) and (wrEnable and not iFull)) then 
 			statusCntrNxt <= statusCntrReg - 1; -- Write but not read
 		else 
 			statusCntrNxt <= statusCntrReg; -- other cases
