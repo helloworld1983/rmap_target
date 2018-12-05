@@ -1,0 +1,20 @@
+#
+# This is list of files for the RMAP target project.
+# 
+# The syntax of this file include comments (lines starting with "#")
+# and file paths (all other not empty lines).
+# 
+# This file is used by tcl-script to compile project.
+# The order of the files matters.
+#
+
+# grlib files
+../../src/grlib/stdlib/config_types.vhd
+../../src/grlib/stdlib/version.vhd
+../../src/grlib/stdlib/stdlib.vhd
+../../src/grlib/stdlib/config.vhd
+#../../src/grlib/stdlib/testlib.vhd
+#../../src/grlib/stdlib/stdio_tb.vhd
+#../../src/grlib/stdlib/stdio.vhd
+
+../../src/grlib/amba/amba.vhd
